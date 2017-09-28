@@ -24,15 +24,20 @@ weight = zeros((m-2)*(n-2),1);
 for j = 2:m-1
     for k = 2:n-1 
          prev_X = X(i,k);
-         neighbor_sum = X(j-1,k) + X(j+1,k) + X(j,k-1) + X(j,k+1);
-         X(j,k) = Y(j,k) + J * neighbor_sum + sigma * randn();  % update
-         %weight( (j-2)*(n-2) + k-1 ) = abs(X(j,k) - prev_X);
-         X(j,k) = sign(X(j,k));
+         neighbor_sum = X(j-1,k) + X(j+1,k) + X(j,k-1) + X(j,k+1);  % core: sum of its neighbors.
+         X(j,k) = Y(j,k) + J * neighbor_sum + sigma * randn();  % core: sampling X_{jk} from conditional distribution.
+         %weight( (j-2)*(n-2) + k-1 ) = abs(X(j,k) - prev_X); % || X_{new} - X_{old} ||
+         X(j,k) = sign(X(j,k));  % core: binarization
          weight( (j-2)*(n-2) + k-1 ) = abs(X(j,k) - prev_X);
     end
     err = (norm(X-true_X,'fro'))/norm(true_X,'fro');
     error_record = [error_record,err];
 end
+%%%%% first scan is sequential scan.
+
+
+
+
 lambda = 0.5;
 weight1 = weight + lambda ; %  avoid zero division
 weight_normal = (weight1) / sum(weight1);
