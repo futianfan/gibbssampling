@@ -1,14 +1,15 @@
+rand('seed',1);
+randn('seed',2);
 % read in
 img = imread('an2i_straight_neutral_open.jpg');
 leng = size(img,1);
 width = size(img,2);
-
 % transform into binary
 threshold = 110;
 img_b =  2 * (img > threshold) - 1; % -1,+1  clean image;
 
 %  binary image + noise 
-sigma = 1;
+sigma = 2.5;  % 0.8 almost equal performance,   1 is okay, 1.5 is okay,   2.5 best performance.
 img_d = img_b + sigma * randn(leng,width); 
 
 
@@ -44,8 +45,25 @@ for i = 1:iter
        p = randsample(1:(m-2)*(n-2),n-2,true,weight_normal); % importance sampling
        for kk = 1:n-2
           index = p(kk);
+          
+         if (method_opt == 1)
+          % weighted scan;
           j = floor((index-1) / (n-2)) + 2;
           k = index - (j-2) * (n-2) + 1;
+          % weighted scan;
+          
+         elseif (method_opt == 2)          
+          % systematic scan;
+          j = jj;
+          k = kk + 1;
+          % systematic scan;
+  
+         elseif (method_opt == 3)
+          % random scan;
+          j = unidrnd(m-2)+1;
+          k = unidrnd(n-2)+1;
+          % random scan;          
+         end 
           prev_X = X(j,k);
           neighbor_sum = X(j-1,k) + X(j+1,k) + X(j,k-1) + X(j,k+1);
           X(j,k) = Y(j,k) + J * neighbor_sum + sigma * randn();
@@ -62,5 +80,5 @@ end
 img_d = X;
 % show binary image {-1,+1} => {0,255}
 img_c = 127 * img_d + 127;
-imshow(img_c);
+%imshow(img_c);
 
